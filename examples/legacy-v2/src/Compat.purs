@@ -9,7 +9,7 @@ import Prelude
 import Effect (Effect)
 import Effect.Unsafe (unsafePerformEffect)
 import React.Basic (Component, JSX, element)
-import React.Basic (Tuple(..), component, ref, render, useEffect, useState) as React
+import React.Basic (Tuple(..), component, ref, useEffect, useState) as React
 
 -- | Supports a common subset of the v2 API to ease the upgrade process
 component
@@ -26,7 +26,7 @@ component { displayName, initialState, receiveProps, render } = unsafePerformEff
     React.useEffect [React.ref props, React.ref state] do
       receiveProps { props, state, setState }
       pure $ pure unit
-    React.render $ render { props, state, setState }
+    pure $ render { props, state, setState }
 
 -- | Supports a common subset of the v2 API to ease the upgrade process
 stateless
@@ -36,4 +36,4 @@ stateless
      }
   -> Component { | props }
 stateless { displayName, render } = unsafePerformEffect do
-  React.component displayName (React.render <<< render)
+  React.component displayName (pure <<< render)

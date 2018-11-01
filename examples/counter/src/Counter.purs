@@ -3,7 +3,7 @@ module Counter where
 import Prelude
 
 import Effect (Effect)
-import React.Basic (CreateComponent, component, ref, render, useEffect, useState, (/\))
+import React.Basic (CreateComponent, component, ref, useEffect, useState, (/\))
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (capture_)
 
@@ -16,7 +16,7 @@ mkCounter = do
       setDocumentTitle $ "Count: " <> show counter
       pure (pure unit)
 
-    render $ R.button
+    pure $ R.button
       { onClick: capture_ $ setCounter (_ + 1)
       , children: [ R.text $ "Increment: " <> show counter ]
       }
