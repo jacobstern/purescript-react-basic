@@ -3,6 +3,7 @@ module React.Basic
   , Render
   , CreateComponent
   , JSX
+  , render
   , component
   , useState
   , useEffect
@@ -38,17 +39,17 @@ instance functorRender :: Functor Render where
 instance applyRender :: Apply Render where
   apply (Render f) (Render a) = Render (apply f a)
 
-instance applicativeRender :: Applicative Render where
-  pure a = Render (pure a)
-
 instance bindRender :: Bind Render where
   bind (Render m) f = Render (bind m \a -> case f a of Render b -> b)
+
+render :: JSX -> Render JSX
+render jsx = Render (pure jsx)
 
 type CreateComponent props = Effect (Component props)
 
 component :: forall props. String -> (props -> Render JSX) -> CreateComponent props
-component name render =
-  let c = Component (mkEffectFn1 (unsafeCoerce render))
+component name renderFn =
+  let c = Component (mkEffectFn1 (unsafeCoerce renderFn))
    in runEffectFn2 unsafeSetDisplayName name c
 
 -- | useState

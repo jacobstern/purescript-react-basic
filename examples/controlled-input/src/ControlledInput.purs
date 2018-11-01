@@ -3,7 +3,7 @@ module ControlledInput where
 import Prelude
 
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
-import React.Basic (CreateComponent, component, fragment, useState, (/\))
+import React.Basic (CreateComponent, component, fragment, render, useState, (/\))
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (capture, targetValue, timeStamp)
 import React.Basic.Events (merge)
@@ -13,7 +13,7 @@ mkControlledInput =
   component "ControlledInput" \props -> do
     state /\ replaceState <- useState initialState
 
-    pure $ fragment
+    render $ fragment
       [ R.input
           { onChange:
               capture (merge { targetValue, timeStamp })

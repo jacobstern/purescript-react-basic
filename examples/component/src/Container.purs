@@ -2,7 +2,7 @@ module Container where
 
 import Prelude
 
-import React.Basic (CreateComponent, component, element)
+import React.Basic (CreateComponent, component, element, render)
 import React.Basic.DOM as R
 import ToggleButton (mkToggleButton)
 
@@ -11,7 +11,7 @@ mkToggleButtonContainer = do
   toggleButton <- mkToggleButton
 
   component "Container" \_ -> do
-    pure $ R.div
+    render $ R.div
       { children:
           [ element toggleButton { label: "A" }
           , element toggleButton { label: "B" }
