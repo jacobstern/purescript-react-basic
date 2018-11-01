@@ -2,10 +2,11 @@ module Main where
 
 import Prelude
 
-import Container (toggleButtonContainer)
+import Container (mkToggleButtonContainer)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Exception (throw)
+import React.Basic (element)
 import React.Basic.DOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
@@ -17,6 +18,7 @@ main = do
   container <- getElementById "container" =<< (map toNonElementParentNode $ document =<< window)
   case container of
     Nothing -> throw "Container element not found."
-    Just c  ->
-      let app = toggleButtonContainer
-       in render app c
+    Just c  -> do
+      toggleButtonContainer <- mkToggleButtonContainer
+      let app = element toggleButtonContainer {}
+      render app c

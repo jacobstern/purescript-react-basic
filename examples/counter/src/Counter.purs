@@ -2,31 +2,23 @@ module Counter where
 
 import Prelude
 
-
-import React.Basic (Component, JSX, StateUpdate(..), capture_, createComponent, make)
+import Effect (Effect)
+import React.Basic (CreateComponent, component, ref, useEffect, useState, (/\))
 import React.Basic.DOM as R
+import React.Basic.DOM.Events (capture_)
 
-component :: Component Props
-component = createComponent "Counter"
+mkCounter :: CreateComponent {}
+mkCounter = do
+  component "Counter" \props -> do
+    counter /\ setCounter <- useState 0
 
-type Props =
-  { label :: String
-  }
+    useEffect [ref counter] do
+      setDocumentTitle $ "Count: " <> show counter
+      pure (pure unit)
 
-data Action
-  = Increment
+    pure $ R.button
+      { onClick: capture_ $ setCounter (_ + 1)
+      , children: [ R.text $ "Increment: " <> show counter ]
+      }
 
-counter :: Props -> JSX
-counter = make component { initialState, update, render }
-  where
-    initialState = { counter: 0, dummy: 0 }
-
-    update self = case _ of
-      Increment ->
-        Update self.state { counter = self.state.counter + 1 }
-
-    render self =
-      R.button
-        { onClick: capture_ self Increment
-        , children: [ R.text (self.props.label <> ": " <> show self.state.counter) ]
-        }
+foreign import setDocumentTitle :: String -> Effect Unit

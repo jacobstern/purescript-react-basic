@@ -2,18 +2,18 @@ module Container where
 
 import Prelude
 
-import React.Basic (Component, JSX, createComponent, makeStateless)
+import React.Basic (CreateComponent, component, element)
 import React.Basic.DOM as R
-import ToggleButton (toggleButton)
+import ToggleButton (mkToggleButton)
 
-component :: Component Unit
-component = createComponent "Container"
+mkToggleButtonContainer :: CreateComponent {}
+mkToggleButtonContainer = do
+  toggleButton <- mkToggleButton
 
-toggleButtonContainer :: JSX
-toggleButtonContainer = unit # makeStateless component \_ ->
-  R.div
-    { children:
-        [ toggleButton { label: "A" }
-        , toggleButton { label: "B" }
-        ]
-    }
+  component "Container" \_ -> do
+    pure $ R.div
+      { children:
+          [ element toggleButton { label: "A" }
+          , element toggleButton { label: "B" }
+          ]
+      }

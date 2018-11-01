@@ -1,6 +1,5 @@
 module React.Basic.Compat
-  ( Component
-  , component
+  ( component
   , stateless
   , module React.Basic
   ) where
@@ -8,9 +7,9 @@ module React.Basic.Compat
 import Prelude
 
 import Effect (Effect)
-import React.Basic (JSX, ReactComponent, Self, StateUpdate(..), createComponent, element, elementKeyed, empty, fragment, make, makeStateless, send, toReactComponent)
-
-type Component = ReactComponent
+import Effect.Unsafe (unsafePerformEffect)
+import React.Basic (Component, JSX, element)
+import React.Basic (Tuple(..), component, ref, useEffect, useState) as React
 
 -- | Supports a common subset of the v2 API to ease the upgrade process
 component
@@ -20,21 +19,14 @@ component
      , receiveProps :: { props :: { | props }, state :: { | state }, setState :: ({ | state } -> { | state }) -> Effect Unit } -> Effect Unit
      , render :: { props :: { | props }, state :: { | state }, setState :: ({ | state } -> { | state }) -> Effect Unit } -> JSX
      }
-  -> ReactComponent { | props }
-component { displayName, initialState, receiveProps, render } =
-  toReactComponent identity (createComponent displayName)
-    { initialState: initialState
-    , didMount: receiveProps <<< selfToLegacySelf
-    , didUpdate: receiveProps <<< selfToLegacySelf
-    , update: \self stateUpdate -> Update (stateUpdate self.state)
-    , render: render <<< selfToLegacySelf
-    }
-  where
-    selfToLegacySelf self@{ props, state } =
-      { props
-      , state
-      , setState: send self
-      }
+  -> Component { | props }
+component { displayName, initialState, receiveProps, render } = unsafePerformEffect do
+  React.component displayName \props -> do
+    React.Tuple state setState <- React.useState initialState
+    React.useEffect [React.ref props, React.ref state] do
+      receiveProps { props, state, setState }
+      pure $ pure unit
+    pure $ render { props, state, setState }
 
 -- | Supports a common subset of the v2 API to ease the upgrade process
 stateless
@@ -42,8 +34,6 @@ stateless
    . { displayName :: String
      , render :: { | props } -> JSX
      }
-  -> ReactComponent { | props }
-stateless { displayName, render } =
-  toReactComponent identity (createComponent displayName)
-    { render: \self -> render self.props
-    }
+  -> Component { | props }
+stateless { displayName, render } = unsafePerformEffect do
+  React.component displayName (pure <<< render)
