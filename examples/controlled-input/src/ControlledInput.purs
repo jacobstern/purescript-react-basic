@@ -19,11 +19,6 @@ mkControlledInput =
       , renderInput lastName
       ]
   where
-    initialState =
-      { value: "hello world"
-      , lastChanged: Nothing
-      }
-
     renderInput input =
       fragment
         [ R.input { onChange: input.onChange, value: input.value }
