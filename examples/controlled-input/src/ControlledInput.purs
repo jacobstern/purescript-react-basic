@@ -3,32 +3,38 @@ module ControlledInput where
 import Prelude
 
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
-import React.Basic (CreateComponent, component, fragment, useState, (/\))
+import React.Basic (CreateComponent, Render, component, fragment, useState, (/\))
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (capture, targetValue, timeStamp)
-import React.Basic.Events (merge)
+import React.Basic.Events (EventHandler, merge)
 
 mkControlledInput :: CreateComponent {}
 mkControlledInput =
   component "ControlledInput" \props -> do
-    state /\ replaceState <- useState initialState
+    input <- useInput "hello world"
 
     pure $ fragment
-      [ R.input
-          { onChange:
-              capture (merge { targetValue, timeStamp })
-                \{ timeStamp, targetValue } -> do
-                  replaceState \_ ->
-                    { value: fromMaybe "" targetValue
-                    , timestamp: Just timeStamp
-                    }
-          , value: state.value
-          }
-      , R.p_ [ R.text ("Current value = " <> show state.value) ]
-      , R.p_ [ R.text ("Changed at = " <> maybe "never" show state.timestamp) ]
+      [ R.input { onChange: input.onChange, value: input.value }
+      , R.p_ [ R.text ("Current value = " <> show input.value) ]
+      , R.p_ [ R.text ("Changed at = " <> maybe "never" show input.lastChanged) ]
       ]
   where
     initialState =
       { value: "hello world"
-      , timestamp: Nothing
+      , lastChanged: Nothing
       }
+
+useInput :: String -> Render { onChange :: EventHandler, value :: String, lastChanged :: Maybe Number }
+useInput initialValue = do
+  { value, lastChanged } /\ replaceState <- useState { value: initialValue, lastChanged: Nothing }
+  pure
+    { onChange: capture
+        (merge { targetValue, timeStamp })
+        \{ timeStamp, targetValue } -> do
+          replaceState \_ ->
+            { value: fromMaybe "" targetValue
+            , lastChanged: Just timeStamp
+            }
+    , value
+    , lastChanged
+    }
