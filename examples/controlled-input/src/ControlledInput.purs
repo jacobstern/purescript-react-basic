@@ -11,18 +11,25 @@ import React.Basic.Events (EventHandler, merge)
 mkControlledInput :: CreateComponent {}
 mkControlledInput =
   component "ControlledInput" \props -> do
-    input <- useInput "hello world"
+    firstName <- useInput "hello"
+    lastName <- useInput "world"
 
-    pure $ fragment
-      [ R.input { onChange: input.onChange, value: input.value }
-      , R.p_ [ R.text ("Current value = " <> show input.value) ]
-      , R.p_ [ R.text ("Changed at = " <> maybe "never" show input.lastChanged) ]
+    pure $ R.form_
+      [ renderInput firstName
+      , renderInput lastName
       ]
   where
     initialState =
       { value: "hello world"
       , lastChanged: Nothing
       }
+
+    renderInput input =
+      fragment
+        [ R.input { onChange: input.onChange, value: input.value }
+        , R.p_ [ R.text ("Current value = " <> show input.value) ]
+        , R.p_ [ R.text ("Changed at = " <> maybe "never" show input.lastChanged) ]
+        ]
 
 useInput :: String -> Render { onChange :: EventHandler, value :: String, lastChanged :: Maybe Number }
 useInput initialValue = do
